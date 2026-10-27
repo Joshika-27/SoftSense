@@ -94,3 +94,19 @@ def to_number(value, default=0.0):
     """Convert telemetry values to numbers safely."""
     try:
         if value is None:
+            def to_number(value, default=0.0):
+    """Convert telemetry values to numbers safely."""
+    try:
+        if value is None:
+            return default
+
+        if isinstance(value, str):
+            value = value.replace(",", "").replace("%", "").strip()
+
+        if value == "":
+            return default
+
+        return float(value)
+
+    except (ValueError, TypeError):
+        return default
