@@ -1008,3 +1008,44 @@ with st.expander("How SoftSense works"):
 if auto_refresh:
     time.sleep(refresh_seconds)
     st.rerun()
+# ============================================================
+# DEMO DATA — SAMPLE VALUES, NOT REAL PC TELEMETRY
+# ============================================================
+
+def get_demo_telemetry():
+    return {
+        "status": "demo",
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "system": {
+            "cpu_percent": 42.5,
+            "memory_percent": 68.0,
+            "disk_percent": 73.0,
+            "memory_used_gb": 5.44,
+            "memory_available_gb": 2.56,
+            "network_received_mb": 125.6,
+            "network_sent_mb": 34.2,
+        },
+        "applications": [
+            {
+                "name": "chrome.exe",
+                "cpu_percent": 18.5,
+                "memory_percent": 22.0,
+                "memory_mb": 1450.0,
+                "process_count": 8,
+            },
+            {
+                "name": "code.exe",
+                "cpu_percent": 12.0,
+                "memory_percent": 14.0,
+                "memory_mb": 920.0,
+                "process_count": 4,
+            },
+            {
+                "name": "python.exe",
+                "cpu_percent": 7.5,
+                "memory_percent": 8.0,
+                "memory_mb": 520.0,
+                "process_count": 2,
+            },
+        ],
+    }
