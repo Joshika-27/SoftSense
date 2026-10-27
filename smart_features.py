@@ -444,3 +444,87 @@ def ask_ai_assistant(question, telemetry_context):
         )
     except (KeyError, IndexError, ValueError):
         return "The AI service returned an unexpected response."
+
+def get_windows_battery_health():
+    """Estimate battery health using the Windows battery report."""
+    import os
+    import re
+    import subprocess
+    import tempfile
+    from pathlib import Path
+
+    if os.name != "nt":
+        return {
+            "available": False,
+            "message": "Battery health reporting is supported here only on Windows.",
+        }
+
+    report_path = Path(tempfile.gettempdir()) / "softsense_battery_report.html"
+
+    try:
+        result = subprocess.run(
+            [
+                "powercfg",
+                "/batteryreport",
+                "/output",
+                str(report_path),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=20,
+            check=False,
+        )
+
+        if result.returncode != 0 or not report_path.exists():
+            return {
+                "available": False,
+                "message": "Windows could not generate the battery report.",
+            }
+
+        html = report_path.read_text(
+            encoding="utf-8",
+            errors="ignore",
+        )
+
+        def find_capacity(label):
+            pattern = (
+                re.escape(label)
+                + r".{0,500}?([0-9,]+)\s*mWh"
+            )
+            match = re.search(
+                pattern,
+                html,
+                flags=re.IGNORECASE | re.DOTALL,
+            )
+
+            if not match:
+                return None
+
+            return int(match.group(1).replace(",", ""))
+
+        design = find_capacity("DESIGN CAPACITY")
+        full_charge = find_capacity("FULL CHARGE CAPACITY")
+
+        if not design or not full_charge or design <= 0:
+            return {
+                "available": False,
+                "message": (
+                    "Battery capacity could not be extracted from the report."
+                ),
+            }
+
+        health = min(100.0, (full_charge / design) * 100)
+
+        return {
+            "available": True,
+            "health_percent": round(health, 1),
+            "design_capacity_mwh": design,
+            "full_charge_capacity_mwh": full_charge,
+            "message": "Estimated remaining battery capacity.",
+        }
+
+    except (OSError, subprocess.SubprocessError) as error:
+        return {
+            "available": False,
+            "message": f"Could not read battery health: {error}",
+        }
