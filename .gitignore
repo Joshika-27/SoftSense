@@ -1,0 +1,11 @@
+venv/
+.venv/
+__pycache__/
+.env
+.env.*
+!.env.example
+live_telemetry.json
+smart_history.csv
+dist/
+build/
+*.log
