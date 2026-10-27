@@ -94,7 +94,7 @@ def to_number(value, default=0.0):
     """Convert telemetry values to numbers safely."""
     try:
         if value is None:
-            def to_number(value, default=0.0):
+           def to_number(value, default=0.0):
     """Convert telemetry values to numbers safely."""
     try:
         if value is None:
